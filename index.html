@@ -668,9 +668,9 @@ async function getTMDB() {
   const dur      = isMovie
     ? (detail.runtime ? `${detail.runtime} мин` : '')
     : (detail.number_of_seasons ? `${detail.number_of_seasons} сез.` : '');
-  const sourceUrl = `https://www.themoviedb.org/${ep}/${item.id}`;
+  const imdbId = detail.imdb_id || null;
 
-  return { title, origTitle, year, rating, genres, synopsis, poster, backdrop, trailerUrl, dur, sourceUrl };
+  return { title, origTitle, year, rating, genres, synopsis, poster, backdrop, trailerUrl, dur, imdbId };
 }
 
 async function tbFetch(path) {
@@ -728,9 +728,8 @@ async function getAnime() {
   const poster   = a.images?.webp?.large_image_url || a.images?.jpg?.large_image_url || null;
   const dur      = a.episodes ? `${a.episodes} эп.` : (a.type || '');
   const trailerUrl = a.trailer?.url || null;
-  const sourceUrl  = a.url || '';
 
-  return { title, origTitle, year, rating, genres, synopsis, poster, backdrop: null, trailerUrl, dur, sourceUrl };
+  return { title, origTitle, year, rating, genres, synopsis, poster, backdrop: null, trailerUrl, dur, imdbId: null };
 }
 
 async function jFetch(path) {
@@ -786,11 +785,17 @@ function render(d) {
   const safe = (url) => {
     try { return new URL(url).href; } catch { return '#'; }
   };
+  const q = encodeURIComponent(d.title + (d.year ? ` ${d.year}` : ''));
+  const kpUrl   = `https://www.kinopoisk.ru/index.php?kp_query=${q}`;
+  const imdbUrl = d.imdbId
+    ? `https://www.imdb.com/title/${d.imdbId}/`
+    : `https://www.imdb.com/find/?q=${q}`;
 
   document.getElementById('actions').innerHTML =
     `<button class="act act-shuffle" onclick="go()">🔀 Ещё раз</button>` +
     (d.trailerUrl ? `<a class="act act-trailer" href="${safe(d.trailerUrl)}" target="_blank" rel="noopener">▶ Трейлер</a>` : '') +
-    (d.sourceUrl  ? `<a class="act act-link"    href="${safe(d.sourceUrl)}"  target="_blank" rel="noopener">Открыть →</a>`  : '');
+    `<a class="act act-link" href="${kpUrl}" target="_blank" rel="noopener">Кинопоиск</a>` +
+    `<a class="act act-link" href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>`;
 
   document.getElementById('welcome').classList.add('gone');
   const card = document.getElementById('card');
