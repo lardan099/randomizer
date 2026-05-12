@@ -450,17 +450,9 @@ select option { background: #12121e; }
 
 <script>
 // ── CONSTANTS ──────────────────────────────────────────────────────────────
-const TB_HOSTS = [
-  'https://apitmdb.cub.red/3',
-  'https://lampa.byskaz.ru/tmdb/api/3',
-];
-const TI_HOSTS = [
-  'https://imagetmdb.com/t/p',
-  'https://nl.imagetmdb.com/t/p',
-  'https://de.imagetmdb.com/t/p',
-];
+const TB_HOSTS = ['https://api.themoviedb.org/3'];
 let TB = TB_HOSTS[0];
-let TI = TI_HOSTS[0];
+let TI = 'https://image.tmdb.org/t/p';
 const JB = 'https://api.jikan.moe/v4';
 
 const COLORS = { movie:'#e5373a', series:'#3a7be5', anime:'#e53a9f', cartoon:'#d4a017' };
@@ -602,10 +594,12 @@ async function getTMDB() {
   const isMovie = cat === 'movie' || cat === 'cartoon';
   const ep = isMovie ? 'movie' : 'tv';
 
+  const sorts = ['popularity.desc', 'vote_average.desc', 'revenue.desc', 'primary_release_date.desc'];
+  const sort_by = sorts[Math.floor(Math.random() * (isMovie ? sorts.length : 2))];
   const p = new URLSearchParams({
     api_key: key, language: 'ru-RU',
-    sort_by: 'popularity.desc', include_adult: 'false',
-    'vote_count.gte': isMovie ? '80' : '40',
+    sort_by, include_adult: 'false',
+    'vote_count.gte': isMovie ? '150' : '60',
     'vote_average.gte': f.rating,
   });
 
@@ -625,22 +619,10 @@ async function getTMDB() {
     p.set('with_genres', f.genre);
   }
 
-  // Get total pages
   const first = await tbFetch(`/discover/${ep}?${p}&page=1`);
   if (!first.results?.length) return null;
 
-  const maxPg = Math.min(first.total_pages || 1, 200);
-  let results = first.results;
-
-  if (maxPg > 1) {
-    const pg = Math.floor(Math.random() * maxPg) + 1;
-    if (pg > 1) {
-      const more = await tbFetch(`/discover/${ep}?${p}&page=${pg}`);
-      if (more.results?.length) results = more.results;
-    }
-  }
-
-  const item = results[Math.floor(Math.random() * results.length)];
+  const item = first.results[Math.floor(Math.random() * first.results.length)];
 
   // Detail
   const detail = await tbFetch(`/${ep}/${item.id}?api_key=${key}&language=ru-RU`);
