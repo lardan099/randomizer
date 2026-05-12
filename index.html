@@ -135,13 +135,15 @@ html, body {
 #welcome.gone { display: none; }
 
 /* ── CARD ── */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
 #card {
   display: flex; gap: 28px; align-items: flex-end;
   width: 100%; max-width: 860px;
-  opacity: 0; transform: translateY(18px);
-  transition: opacity .5s var(--ease), transform .5s var(--ease);
 }
-#card.on { opacity: 1; transform: none; }
+#card.on { animation: cardIn .5s var(--ease) both; }
 #card.gone { display: none; }
 
 #poster-wrap { flex-shrink: 0; width: clamp(100px, 10.5vw, 165px); }
@@ -793,7 +795,7 @@ function render(d) {
   document.getElementById('welcome').classList.add('gone');
   const card = document.getElementById('card');
   card.classList.remove('gone', 'on');
-  card.getBoundingClientRect(); // force reflow so transition restarts cleanly
+  void card.offsetWidth; // force reflow so keyframe animation restarts
   card.classList.add('on');
 }
 
