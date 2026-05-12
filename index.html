@@ -350,6 +350,10 @@ select option { background: #12121e; }
       <input id="key-inp" type="text" placeholder="Вставь ключ..." />
     </div>
     <button class="btn-go" onclick="saveKey()">Начать →</button>
+    <button id="cancel-key" class="btn-go" onclick="closeKey()"
+            style="margin-top:8px;background:rgba(255,255,255,.07);color:var(--text);display:none">
+      Отмена
+    </button>
   </div>
 </div>
 
@@ -362,12 +366,20 @@ select option { background: #12121e; }
 
   <header id="hdr">
     <div id="logo">что посмотреть</div>
-    <button class="pill-btn" onclick="openF()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/>
-      </svg>
-      Фильтры
-    </button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="pill-btn" onclick="openKey()" title="Сменить API ключ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+        </svg>
+        Ключ
+      </button>
+      <button class="pill-btn" onclick="openF()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/>
+        </svg>
+        Фильтры
+      </button>
+    </div>
   </header>
 
   <main id="main">
@@ -495,6 +507,16 @@ function saveKey() {
   if (!v) return toast('Введи API ключ');
   S.key = v;
   localStorage.setItem('tmdb_key', v);
+  closeKey();
+}
+
+function openKey() {
+  document.getElementById('key-inp').value = S.key || '';
+  document.getElementById('cancel-key').style.display = S.key ? 'block' : 'none';
+  document.getElementById('setup').classList.remove('gone');
+}
+
+function closeKey() {
   document.getElementById('setup').classList.add('gone');
 }
 
@@ -770,11 +792,9 @@ function render(d) {
 
   document.getElementById('welcome').classList.add('gone');
   const card = document.getElementById('card');
-  card.classList.remove('gone');
-  requestAnimationFrame(() => {
-    card.classList.remove('on');
-    requestAnimationFrame(() => card.classList.add('on'));
-  });
+  card.classList.remove('gone', 'on');
+  card.getBoundingClientRect(); // force reflow so transition restarts cleanly
+  card.classList.add('on');
 }
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
