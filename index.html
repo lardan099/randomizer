@@ -455,8 +455,10 @@ select option { background: #12121e; }
 <script>
 // ── CONSTANTS ──────────────────────────────────────────────────────────────
 const TMDB_DIRECT = 'https://api.themoviedb.org/3';
-let TB = localStorage.getItem('tmdb_proxy') || TMDB_DIRECT;
-let TI = 'https://image.tmdb.org/t/p';
+const TMDB_IMG_DIRECT = 'https://image.tmdb.org/t/p';
+const _savedProxy = localStorage.getItem('tmdb_proxy') || '';
+let TB = _savedProxy || TMDB_DIRECT;
+let TI = _savedProxy ? _savedProxy + '/img/t/p' : TMDB_IMG_DIRECT;
 const JB = 'https://api.jikan.moe/v4';
 
 const COLORS = { movie:'#e5373a', series:'#3a7be5', anime:'#e53a9f', cartoon:'#d4a017' };
@@ -507,6 +509,7 @@ function saveKey() {
   localStorage.setItem('tmdb_key', v);
   const proxy = document.getElementById('proxy-inp').value.trim().replace(/\/$/, '');
   TB = proxy || TMDB_DIRECT;
+  TI = proxy ? proxy + '/img/t/p' : TMDB_IMG_DIRECT;
   if (proxy) localStorage.setItem('tmdb_proxy', proxy);
   else localStorage.removeItem('tmdb_proxy');
   closeKey();
