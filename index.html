@@ -436,8 +436,17 @@ select option { background: #12121e; }
 
 <script>
 // ── CONSTANTS ──────────────────────────────────────────────────────────────
-const TB = 'https://api.themoviedb.org/3';
-const TI = 'https://image.tmdb.org/t/p';
+const TB_HOSTS = [
+  'https://apitmdb.cub.red/3',
+  'https://lampa.byskaz.ru/tmdb/api/3',
+];
+const TI_HOSTS = [
+  'https://imagetmdb.com/t/p',
+  'https://nl.imagetmdb.com/t/p',
+  'https://de.imagetmdb.com/t/p',
+];
+let TB = TB_HOSTS[0];
+let TI = TI_HOSTS[0];
 const JB = 'https://api.jikan.moe/v4';
 
 const COLORS = { movie:'#e5373a', series:'#3a7be5', anime:'#e53a9f', cartoon:'#d4a017' };
@@ -641,9 +650,16 @@ async function getTMDB() {
 }
 
 async function tbFetch(path) {
-  const r = await fetch(`${TB}${path}`);
-  if (!r.ok) throw new Error(String(r.status));
-  return r.json();
+  for (let i = 0; i < TB_HOSTS.length; i++) {
+    try {
+      const r = await fetch(`${TB_HOSTS[i]}${path}`);
+      if (!r.ok) throw new Error(String(r.status));
+      TB = TB_HOSTS[i];
+      return r.json();
+    } catch(e) {
+      if (i === TB_HOSTS.length - 1) throw e;
+    }
+  }
 }
 
 // ── JIKAN (ANIME) ──────────────────────────────────────────────────────────
